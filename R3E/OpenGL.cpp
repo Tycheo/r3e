@@ -1,0 +1,11 @@
+#include "OpenGL.hpp"
+
+OpenGL OpenGL::mInstance;
+
+PFNGLCLIENTACTIVETEXTUREPROC OpenGL::glClientActiveTexture;
+PFNGLACTIVETEXTUREPROC OpenGL::glActiveTexture;
+
+PFNGLGENBUFFERSPROC OpenGL::glGenBuffers;
+PFNGLBINDBUFFERPROC OpenGL::glBindBuffer;
+PFNGLBUFFERDATAPROC OpenGL::glBufferData;
+PFNGLDELETEBUFFERSARBPROC OpenGL::glDeleteBuffers;
