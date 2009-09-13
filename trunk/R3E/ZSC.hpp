@@ -5,6 +5,7 @@
 #include "FileSystem.hpp"
 #include "Material.hpp"
 #include "EntityGroup.hpp"
+#include "SkeletalEntity.hpp"
 
 namespace ROSE {
 	template<class T> class ZSC {
@@ -48,6 +49,10 @@ namespace ROSE {
 		struct ModelPart {
 			short mMesh;
 			short mMaterial;
+
+			short mBoneID;
+			short mDummyID;
+
 			Matrix4 mTransform;
 		};
 
@@ -65,8 +70,14 @@ namespace ROSE {
 		};
 
 	public:
-		ZSC(){}
-		ZSC(const char* path){
+		ZSC()
+			: mBoneID(-1), mDummyID(-1)
+		{
+		}
+
+		ZSC(const char* path)
+			: mBoneID(-1), mDummyID(-1) 
+		{
 			Open(path);
 		}
 
@@ -122,6 +133,9 @@ namespace ROSE {
 				model->mPartList.setCount(subCount);
 				for(short j = 0; j < subCount; ++j){
 					ModelPart* part = &model->mPartList[j];
+					part->mBoneID = -1;
+					part->mDummyID = -1;
+
 					fh->Read(part->mMesh);
 					fh->Read(part->mMaterial);
 					
@@ -146,6 +160,12 @@ namespace ROSE {
 								fh->Read(scale);
 								transFlags |= TRANS_SCALE;
 								break;
+							case PART_BONEINDEX:
+								fh->Read(part->mBoneID);
+								break;
+							case PART_DUMMYINDEX:
+								fh->Read(part->mDummyID);
+								break;
 							default:
 								fh->Skip(size);
 						};
@@ -154,7 +174,7 @@ namespace ROSE {
 					}
 
 					part->mTransform = Matrix4::IDENTITY;
-					//if(transFlags & TRANS_ROTATE) part->mTransform = Matrix4::CreateRotation(rotate);
+					if(transFlags & TRANS_ROTATE) part->mTransform = Matrix4::CreateRotation(rotate);
 					if(transFlags & TRANS_SCALE) part->mTransform = part->mTransform * Matrix4::CreateScaling(scale);
 					if(transFlags & TRANS_TRANSLATE) part->mTransform = part->mTransform * Matrix4::CreateTranslation(translate);
 				}
@@ -195,7 +215,7 @@ namespace ROSE {
 					}
 
 					effect->mTransform = Matrix4::IDENTITY;
-					//if(transFlags & TRANS_ROTATE) effect->mTransform = Matrix4::CreateRotation(rotate);
+					if(transFlags & TRANS_ROTATE) effect->mTransform = Matrix4::CreateRotation(rotate);
 					if(transFlags & TRANS_SCALE) effect->mTransform = effect->mTransform * Matrix4::CreateScaling(scale);
 					if(transFlags & TRANS_TRANSLATE) effect->mTransform = effect->mTransform * Matrix4::CreateTranslation(translate);
 				}
@@ -210,7 +230,7 @@ namespace ROSE {
 			return true;
 		}
 
-		Entity* LoadModel(unsigned int index){
+		Entity* LoadModel(unsigned int index, Entity* parent = 0){
 			if(index >= mModelList.size()) return NULL;
 			Model* model = &mModelList[index];
 			if(model->mPartList.size() == 0) return NULL;
@@ -229,9 +249,34 @@ namespace ROSE {
 				entity->SetTransform(part->mTransform);
 
 				group->AddChild(entity);
+
+				if(part->mBoneID == -1 && mBoneID != -1) part->mBoneID = mBoneID;
+				if(part->mDummyID == -1 && mDummyID != -1) part->mDummyID = mDummyID;
+
+				if(parent){
+					if(part->mBoneID != -1){
+						if(parent->mType == ENTITY_1TEX_MESH_SKINNED){
+							SkeletalEntity* skel = (SkeletalEntity*)parent;
+							skel->BindEntityToBone(entity, part->mBoneID);
+						}
+					}else if(part->mDummyID != -1){
+						if(parent->mType == ENTITY_1TEX_MESH_SKINNED){
+							SkeletalEntity* skel = (SkeletalEntity*)parent;
+							skel->BindEntityToDummy(entity, part->mDummyID);
+						}
+					}
+				}
 			}
 
 			return group;
+		}
+
+		void SetBindBone(int id){
+			mBoneID = id;
+		}
+
+		void SetBindDummy(int id){
+			mDummyID = id;
 		}
 
 	private:
@@ -239,6 +284,9 @@ namespace ROSE {
 		Array<Material> mMaterialList;
 		Array<Effect> mEffectList;
 		Array<Model> mModelList;
+
+		int mBoneID;
+		int mDummyID;
 	};
 };
 

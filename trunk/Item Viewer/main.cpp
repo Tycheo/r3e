@@ -6,6 +6,7 @@
 #include "..\R3E\ROSEData.hpp"
 #include "..\R3E\Player.hpp"
 #include "..\R3E\PTL.hpp"
+#include "..\R3E\NpcManager.hpp"
 
 #include <gl/glu.h>
 
@@ -84,22 +85,28 @@ public:
 	virtual BOOL InitGL(){		
 		OpenGL::InitGL();
 		mScene.Init();
+		ROSE::Data::Load();
 
 		mPlayer = new Player();
 
-		mPlayer->SetSkeleton("3DDATA\\AVATAR\\MALE.ZMD");
-		mPlayer->SetAnimation("3DDATA\\MOTION\\AVATAR\\EMPTY_RUN_M1.ZMO");
+		mPlayer->SetGender(1);
+		mPlayer->SetAnimation("3DDATA\\MOTION\\AVATAR\\ONETOOL_ATTACK01_M1.ZMO");
 
-		mPlayer->SetItem(ROSE::IT_BODY, 2);
-		mPlayer->SetItem(ROSE::IT_FOOT, 2);
-		mPlayer->SetItem(ROSE::IT_ARM, 2);
-		mPlayer->SetItem(ROSE::IT_HAIR, 1);
+		mPlayer->SetItem(ROSE::IT_BODY, 42);
+		mPlayer->SetItem(ROSE::IT_FOOT, 42);
+		mPlayer->SetItem(ROSE::IT_ARM, 42);
+		mPlayer->SetItem(ROSE::IT_CAP, 866);
+		mPlayer->SetItem(ROSE::IT_HAIR, 0);
 		mPlayer->SetItem(ROSE::IT_FACE, 2);
-		mPlayer->SetItem(ROSE::IT_WEAPON, 1);
-		mPlayer->SetItem(ROSE::IT_SUBWPN, 1);
-		mPlayer->SetItem(ROSE::IT_BACK, 223);
+		mPlayer->SetItem(ROSE::IT_WEAPON, 49);
+		mPlayer->SetItem(ROSE::IT_SUBWPN, 17);
+		mPlayer->SetItem(ROSE::IT_BACK, 778);
 
 		mScene.AddEntity(mPlayer);
+
+		Entity* npc = NpcManager::Instance().Load(1);
+		npc->SetTransform(Matrix4::CreateTranslation(Vector3(1.0f, 0.0f, 0.0f)));
+		mScene.AddEntity(npc);
 
 		return TRUE;
 	}

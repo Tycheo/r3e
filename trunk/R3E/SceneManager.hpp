@@ -42,8 +42,6 @@ public:
 		SkinShaderData::LoadFromShader(skinShader1->GetProgramObject());
 
 		mShaders[ENTITY_1TEX_MESH_SKINNED] = skinShader1;
-
-		ROSE::Data::LoadZSC();
 	}
 
 	void BeginScene(){

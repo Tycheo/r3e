@@ -23,6 +23,10 @@ public:
 		glPopMatrix();
 	}
 
+	virtual bool IsSkinned(){
+		return mMesh.Get()->mFormat.HasSkin();
+	}
+
 	Mesh1TexEntity* SetMesh(const char* path){
 		mMesh = MeshManager::Instance().LoadMesh(path);
 		SetBoundingBox(mMesh->mBoundingBox);

@@ -3,6 +3,7 @@
 
 #include "Entity.hpp"
 #include "Array.hpp"
+#include "SkinShaderData.hpp"
 
 class EntityGroup : public Entity {
 public:
@@ -37,8 +38,19 @@ public:
 	virtual void Render(){
 		glPushMatrix();
 		mTransform.glMult();
-		for(unsigned int i = 0; i < mChildren.size(); ++i)
-			mChildren[i]->Render();
+
+		GLint bindBoneLoc = SkinShaderData::mBindBoneLoc;
+
+		for(unsigned int i = 0; i < mChildren.size(); ++i){
+			if(!mChildren[i]->IsSkinned()){
+				OpenGL::Uniform1i(bindBoneLoc, 1);
+				mChildren[i]->Render();
+				OpenGL::Uniform1i(bindBoneLoc, 0);
+			}else{
+				mChildren[i]->Render();
+			}
+		}
+
 		glPopMatrix();
 	}
 
