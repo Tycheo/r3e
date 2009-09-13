@@ -109,7 +109,7 @@ public:
 			mesh = new OMGHAXLOL::Mesh(path);
 			mLoadedMesh.add(path, mesh);
 		}else{
-			mesh = (OMGHAXLOL::Mesh*)entry;
+			mesh = entry->GetValue();
 		}
 
 		mesh->LoadMesh();

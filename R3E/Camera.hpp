@@ -13,7 +13,7 @@ public:
 
 	bool Apply(){
 		if(!UpdateTransform()) return false;
-		glLoadMatrixf(&mTransform.m[0][0]);
+		mTransform.glLoad();
 		return true;
 	}
 

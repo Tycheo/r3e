@@ -39,7 +39,7 @@ public:
 		if(!IsValid()) return (*this);
 		const char toTrim[] = { 0x09, 0x0a, 0x0b, 0x0d, 0x20 };
 		unsigned int len = Length();
-		unsigned int start = -1;
+		unsigned int start = 0xFFFFFFFF;
 		unsigned int end = 0;
 
 		for(unsigned int i = 0; i < len; ++i){
@@ -50,7 +50,7 @@ public:
 			}
 			if(start != i) break;
 		}
-		if(start == -1) start = 0;
+		if(start == 0xFFFFFFFF) start = 0;
 		else ++start;
 
 		end = len;
@@ -160,7 +160,7 @@ public:
 		unsigned int pos = Find(find);
 		unsigned int length = find.Length();
 		unsigned int rlength = replace.Length();
-		while(pos != -1){
+		while(pos != 0xFFFFFFFF){
 			Replace(pos, length, replace);
 			pos = Find(find, pos + rlength);
 		}
@@ -207,7 +207,7 @@ public:
 		char buf[2];
 		buf[1] = 0;
 		idx = Find("%", last);
-		while(idx != -1){
+		while(idx != 0xFFFFFFFF){
 			buf[0] = Hex2Char(mData + idx + 1);
 			Replace(idx, 3, buf);
 			last = idx + 1;
@@ -219,7 +219,7 @@ public:
 		unsigned int last = 0;
 		unsigned int idx = Find(terminator);
 
-		while(idx != -1){
+		while(idx != 0xFFFFFFFF){
 			String cur = SubStr(last, idx - last);
 			strList.push_back(cur);
 			last = idx+1;
@@ -233,7 +233,7 @@ public:
 	}
 
 	unsigned int Find(const String& substr, unsigned int start = 0) const {
-		if(!IsValid()) return -1;
+		if(!IsValid()) return 0xFFFFFFFF;
 		unsigned int length = Length();
 		unsigned int sublen = substr.Length();
 		for(unsigned int i = start; i < length; ++i){
@@ -244,7 +244,7 @@ public:
 			}
 		}
 
-		return -1;
+		return 0xFFFFFFFF;
 	}
 
 	unsigned int Length() const {

@@ -9,14 +9,17 @@
 class FlatFileSystem {
 public:
 	FlatFileSystem(){}
+	FlatFileSystem(const char* baseDir) : mBaseDirectory(baseDir) {
+		mBaseDirectory.ReplaceAll("\"", "");
+	}
 	virtual ~FlatFileSystem(){}
 
-	virtual File* OpenFile(const char* path, const char* mode){
+	virtual File* OpenFile(const char* path, const char* mode, bool dataFile = true){
 		String realpath = path;
-		GetFullPath(realpath);
+		if(dataFile) GetFullPath(realpath);
 
 		FlatFile* file = new FlatFile();
-		if(!file->Open(path, mode)){
+		if(!file->Open(realpath, mode)){
 			delete file;
 			return NULL;
 		}

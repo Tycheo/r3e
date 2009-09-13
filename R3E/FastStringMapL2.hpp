@@ -19,7 +19,7 @@ public:
 		Hash mHash;
 		T mValue;
 
-		operator T() const {
+		T GetValue() const {
 			return mValue;
 		}
 	};

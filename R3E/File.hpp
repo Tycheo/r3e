@@ -75,7 +75,7 @@ public:
 				}
 			}
 
-			if(buffer[i] == 0) break;
+			if(buffer[i] == terminator) break;
 		}
 
 		return String(buffer);

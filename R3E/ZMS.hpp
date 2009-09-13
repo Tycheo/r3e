@@ -7,12 +7,15 @@
 
 #include "Vector2.hpp"
 #include "Vector3.hpp"
+#include "Vector4.hpp"
 #include "BoundingBox.hpp"
 
 #include "VertexTypes.hpp"
 #include "VertexBuffer.hpp"
 
 #include "IndexBuffer.hpp"
+
+//#include "Animator.hpp"
 
 namespace ROSE {
 	class ZMS {
@@ -97,8 +100,8 @@ namespace ROSE {
 		};
 
 	public:
-		ZMS() : mVersion(0), mBoneLookup(0), mVertices(0), mNormals(0),
-			mColours(0), mVertBones(0), mTangents(0), mIndexBuffer(0), mVertexBuffer(0)
+		ZMS() : mVersion(0), mBoneLookup(0), mVertices(0), mNormals(0), mWeights(0),
+			mColours(0), mBones(0), mTangents(0), mIndexBuffer(0), mVertexBuffer(0)
 		{
 			mUVMaps[0] = 0;
 			mUVMaps[1] = 0;
@@ -111,7 +114,8 @@ namespace ROSE {
 			SAFE_DELETE_ARRAY(mVertices);
 			SAFE_DELETE_ARRAY(mNormals);
 			SAFE_DELETE_ARRAY(mColours);
-			SAFE_DELETE_ARRAY(mVertBones);
+			SAFE_DELETE_ARRAY(mBones);
+			SAFE_DELETE_ARRAY(mWeights);
 			SAFE_DELETE_ARRAY(mTangents);
 			SAFE_DELETE_ARRAY(mUVMaps[0]);
 			SAFE_DELETE_ARRAY(mUVMaps[1]);
@@ -122,12 +126,10 @@ namespace ROSE {
 		}
 
 		void Render(){
-			GLenum err1 = glGetError();
 			OpenGL::ActiveTexture(GL_TEXTURE0_ARB);
 			OpenGL::ClientActiveTexture(GL_TEXTURE0_ARB);
 			mVertexBuffer->Bind();
 			mIndexBuffer->Draw();
-			GLenum err2 = glGetError();
 		}
 
 		bool Open(const char* path){
@@ -166,14 +168,47 @@ namespace ROSE {
 				for(int i = 0; i < mVertexCount; ++i)
 					mVertexBuffer->AddVertex(&mVertices[i]);
 			}else if(!mFormat.HasUV1()){
-				V3F_UV0 tmp;
 
-				mVertexBuffer = new VertexBuffer<V3F_UV0>();
-				mVertexBuffer->SetSize(mVertexCount);
-				for(int i = 0; i < mVertexCount; ++i){
-					tmp.pos = mVertices[i];
-					tmp.uv0 = mUVMaps[0][i];
-					mVertexBuffer->AddVertex(&tmp);
+				/*Animator anim;
+				ROSE::ZMD* skeleton = new ROSE::ZMD();
+				ROSE::ZMO* motion = new ROSE::ZMO();
+				anim.SetSkeleton(skeleton);
+				anim.SetAnimation(motion);
+
+				skeleton->Open("3DDATA\\AVATAR\\MALE.ZMD");
+				motion->Open("3DDATA\\MOTION\\AVATAR\\EMPTY_STOP1_M1.ZMO");
+
+				anim.PreCacheFrames();
+					/*Vector3 tmppos;
+					BoneWeights* w = &mVertBones[i];
+
+					for(int j = 0; j < 4; ++j){
+						Matrix4 mat = anim.GetBoneMatrix(w->mBones[j]);
+						tmppos += mat.TransformCoord(mVertices[i]) * w->mWeights[j];
+					}
+
+					tmp.pos = tmppos;*/
+
+				if(mFormat.HasSkin()){
+					V3F_UV0_BD tmp;
+					mVertexBuffer = new VertexBuffer<V3F_UV0_BD>();
+					mVertexBuffer->SetSize(mVertexCount);
+					for(int i = 0; i < mVertexCount; ++i){
+						tmp.pos = mVertices[i];
+						tmp.uv0 = mUVMaps[0][i];
+						tmp.bone = mBones[i];
+						tmp.weight = mWeights[i];
+						mVertexBuffer->AddVertex(&tmp);
+					}
+				}else{
+					V3F_UV0 tmp;
+					mVertexBuffer = new VertexBuffer<V3F_UV0>();
+					mVertexBuffer->SetSize(mVertexCount);
+					for(int i = 0; i < mVertexCount; ++i){
+						tmp.pos = mVertices[i];
+						tmp.uv0 = mUVMaps[0][i];
+						mVertexBuffer->AddVertex(&tmp);
+					}
 				}
 			}else{
 				V3F_UV0_UV1 tmp;
@@ -199,14 +234,14 @@ namespace ROSE {
 			fh->Read(mBoundingBox.mMin);
 			fh->Read(mBoundingBox.mMax);
 
-			mBoneCount = fh->Read<int>();
+			mBoneCount = (short)fh->Read<int>();
 			mBoneLookup = new short[mBoneCount];
 			for(int i = 0; i < mBoneCount; ++i){
 				fh->Read(idx);
-				mBoneLookup[i] = fh->Read<int>();
+				mBoneLookup[i] = (short)fh->Read<int>();
 			}
 
-			mVertexCount = fh->Read<int>();
+			mVertexCount = (short)fh->Read<int>();
 			mVertices = new Vector3[mVertexCount];
 			for(int i = 0; i < mVertexCount; ++i){
 				fh->Read(idx);
@@ -230,15 +265,15 @@ namespace ROSE {
 			}
 
 			if(mFormat.HasSkin()){
-				mVertBones = new BoneWeights[mVertexCount];
+				mWeights = new Vector4[mVertexCount];
+				mBones = new Vector4[mVertexCount];
+				int bones[4];
 				for(int i = 0; i < mVertexCount; ++i){
 					fh->Read(idx);
 
-					for(int j = 0; j < 4; ++j)
-						fh->Read(mVertBones[i].mWeights[j]);
-
-					for(int j = 0; j < 4; ++j)
-						mVertBones[i].mBones[j] = mBoneLookup[fh->Read<int>()];
+					fh->Read(mWeights[i]);
+					fh->ReadData(bones, sizeof(int) * 4);
+					mBones[i] = Vector4(mBoneLookup[bones[0]], mBoneLookup[bones[1]], mBoneLookup[bones[2]], mBoneLookup[bones[3]]);
 				}
 			}
 
@@ -259,7 +294,7 @@ namespace ROSE {
 				}
 			}
 
-			int faceCount = fh->Read<int>();
+			short faceCount = (short)fh->Read<int>();
 			mIndexCount = faceCount * 3;
 
 			mIndexBuffer = new IndexBuffer<short>();
@@ -270,7 +305,7 @@ namespace ROSE {
 				fh->Read(idx);
 
 				for(int j = 0; j < 3; ++j){
-					tmp = fh->Read<int>();
+					tmp = (short)fh->Read<int>();
 					mIndexBuffer->AddIndex(&tmp);
 				}
 			}
@@ -300,11 +335,13 @@ namespace ROSE {
 			}
 
 			if(mFormat.HasSkin()){
-				mVertBones = new BoneWeights[mVertexCount];
+				mWeights = new Vector4[mVertexCount];
+				mBones = new Vector4[mVertexCount];
+				short bones[4];
 				for(int i = 0; i < mVertexCount; ++i){
-					fh->Read(mVertBones[i]);
-					for(int j = 0; j < 4; ++j)
-						mVertBones[i].mBones[j] = mBoneLookup[mVertBones[i].mBones[j]];
+					fh->Read(mWeights[i]);
+					fh->ReadData(bones, sizeof(short) * 4);
+					mBones[i] = Vector4(mBoneLookup[bones[0]], mBoneLookup[bones[1]], mBoneLookup[bones[2]], mBoneLookup[bones[3]]);
 				}
 			}
 
@@ -324,13 +361,8 @@ namespace ROSE {
 			mIndexCount *= 3;
 
 			mIndexBuffer = new IndexBuffer<short>();
-			mIndexBuffer->SetSize(mIndexCount);
-			for(int i = 0; i < mIndexCount; ++i){
-				short tmp;
-				fh->Read(tmp);
-				mIndexBuffer->AddIndex(&tmp);
-			}
-			//fh->ReadData(mIndexBuffer->Buffer(), sizeof(short) * mIndexCount);
+			mIndexBuffer->SetCount(mIndexCount);
+			fh->ReadData(mIndexBuffer->Buffer(), sizeof(short) * mIndexCount);
 		}
 
 	public:
@@ -347,7 +379,8 @@ namespace ROSE {
 		Vector3* mVertices;
 		Vector3* mNormals;
 		Vector4* mColours;
-		BoneWeights* mVertBones;
+		Vector4* mBones;
+		Vector4* mWeights;
 		Vector3* mTangents;
 		Vector2* mUVMaps[4];
 

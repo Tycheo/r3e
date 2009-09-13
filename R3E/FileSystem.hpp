@@ -8,7 +8,7 @@ public:
 	FileSystem(){}
 	virtual ~FileSystem(){}
 
-	virtual File* OpenFile(const char* path, const char* mode) = 0;
+	virtual File* OpenFile(const char* path, const char* mode, bool dataFile = true) = 0;
 
 	virtual bool FileExists(const char* path) = 0;
 	virtual long FileSize(const char* path) = 0;

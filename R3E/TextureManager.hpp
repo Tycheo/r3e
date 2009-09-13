@@ -122,7 +122,7 @@ public:
 			texture = new OMGHAXLOL::Texture(path);
 			mLoadedTextures.add(path, texture);
 		}else{
-			texture = (OMGHAXLOL::Texture*)entry;
+			texture = entry->GetValue();
 		}
 
 		return SmartTexture(texture);
