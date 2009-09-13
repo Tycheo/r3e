@@ -18,6 +18,19 @@ public:
 		return Quaternion(s-rhs.s, v-rhs.v);
 	}
 
+	Quaternion operator*(const Quaternion &rhs) const {
+		Quaternion ret;
+		ret.s = (s * rhs.s) - (x * rhs.x) - (y * rhs.y) - (z * rhs.z);
+		ret.x = (s * rhs.x) + (x * rhs.s) + (y * rhs.z) - (z * rhs.y);
+		ret.y = (s * rhs.y) - (x * rhs.z) + (y * rhs.s) + (z * rhs.x);
+		ret.z = (s * rhs.z) + (x * rhs.y) - (y * rhs.x) + (z * rhs.s);
+		return ret;
+	}
+
+	void operator*=(const Quaternion& rhs){
+		(*this) = (*this) * rhs;
+	}
+
 	void operator+=(const Quaternion& rhs){
 		(*this) = (*this) + rhs;
 	}
@@ -34,8 +47,16 @@ public:
 		return (float)(s*s + x*x + y*y + z*z);
 	}
 
+	void Normalise(){
+		float f = Length();
+		s /= f;
+		x /= f;
+		y /= f;
+		z /= f;
+	}
+
 	Quaternion Conjugate() const {
-		Quaternion ret(s, -v);
+		return Quaternion(s, -v);
 	}
 
 	static inline Quaternion FromAxisAngle(const Vector3 &axis, float angle){

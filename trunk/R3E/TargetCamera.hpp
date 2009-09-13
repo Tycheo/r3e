@@ -9,7 +9,7 @@ public:
 		mEye = Vector3(0.0f);
 		mUp = Vector3(0.0f, 0.0f, 1.0f);
 
-		mTarget = Vector3(0.0f);
+		mTarget = Vector3(0.0f, 0.0f, 1.0f);
 		mDistance = 5.0f;
 		mVRotate = 1.32f;
 		mHRotate = 5.28f;

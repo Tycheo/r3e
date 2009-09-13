@@ -5,15 +5,21 @@
 #include "Frustum.hpp"
 #include "Matrix4.hpp"
 #include "Vector3.hpp"
+#include "OpenGL.hpp"
 
 class BoundingBox {
 public:
-	BoundingBox(){}
+	BoundingBox(){Reset();}
 	BoundingBox(float p) : mMin(p), mMax(p) {}
 	BoundingBox(Vector3 p) : mMin(p), mMax(p) {}
 	BoundingBox(Vector3 mn, Vector3 mx) : mMin(mn), mMax(mx) {}
 
 	~BoundingBox(){}
+
+	void Reset(){
+		mMin = Vector3(9999.0f);
+		mMax = Vector3(-9999.0f);
+	}
 
 	BoundingBox operator/(float rhs) const {
 		return BoundingBox(mMin / rhs, mMax / rhs);
@@ -22,6 +28,22 @@ public:
 	void operator/=(float rhs){
 		(*this) = (*this) / rhs;
 	}
+
+	void AddBox(const BoundingBox& box){
+		AddPoint(box.mMin);
+		AddPoint(box.mMax);
+	}
+
+	void AddTransformedBox(const BoundingBox& b, const Matrix4& mat){
+		AddPoint(mat.TransformCoord(Vector3(b.mMin.x, b.mMin.y, b.mMin.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMin.x, b.mMax.y, b.mMin.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMax.x, b.mMin.y, b.mMin.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMin.x, b.mMin.y, b.mMax.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMax.x, b.mMax.y, b.mMin.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMax.x, b.mMin.y, b.mMax.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMin.x, b.mMax.y, b.mMax.z)));
+		AddPoint(mat.TransformCoord(Vector3(b.mMax.x, b.mMax.y, b.mMax.z)));
+	};
 
 	void AddPoint(const Vector3& vec){
 		if(mMin.x > vec.x) mMin.x = vec.x;
@@ -46,6 +68,10 @@ public:
 	}
 
 	int CheckIntersectFrustum(const Frustum& f) const {
+		//2 = Completely In
+		//1 = Intersect
+		//0 = Completely Out
+
 		int ret = 2;
 		for(int i = 0; i < 6; ++i){
 			Vector3 p(mMin);
@@ -76,6 +102,50 @@ public:
 		}
 
 		return ret;
+	}
+
+	void Render(){
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMin.x, mMin.y, mMax.z);
+		glVertex3f(mMax.x, mMin.y, mMax.z);
+		glVertex3f(mMax.x, mMax.y, mMax.z);
+		glVertex3f(mMin.x, mMax.y, mMax.z);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMin.x, mMin.y, mMin.z);
+		glVertex3f(mMin.x, mMax.y, mMin.z);
+		glVertex3f(mMax.x, mMax.y, mMin.z);
+		glVertex3f(mMax.x, mMin.y, mMin.z);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMin.x, mMax.y, mMin.z);
+		glVertex3f(mMin.x, mMax.y, mMax.z);
+		glVertex3f(mMax.x, mMax.y, mMax.z);
+		glVertex3f(mMax.x, mMax.y, mMin.z);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMin.x, mMin.y, mMin.z);
+		glVertex3f(mMax.x, mMin.y, mMin.z);
+		glVertex3f(mMax.x, mMin.y, mMax.z);
+		glVertex3f(mMin.x, mMin.y, mMax.z);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMax.x, mMin.y, mMin.z);
+		glVertex3f(mMax.x, mMax.y, mMin.z);
+		glVertex3f(mMax.x, mMax.y, mMax.z);
+		glVertex3f(mMax.x, mMin.y, mMax.z);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(mMin.x, mMin.y, mMin.z);
+		glVertex3f(mMin.x, mMin.y, mMax.z);
+		glVertex3f(mMin.x, mMax.y, mMax.z);
+		glVertex3f(mMin.x, mMax.y, mMin.z);
+		glEnd();
 	}
 
 	Vector3 mMin, mMax;

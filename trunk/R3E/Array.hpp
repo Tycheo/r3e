@@ -19,7 +19,7 @@ public:
 		mMaxSize = 0;
 	}
 
-	void erase(unsigned int idx){
+	void erase(int idx){
 		if(!mData) return;
 		if(mCount == 1) return clear();
 		if(idx == NOT_FOUND) return;
@@ -61,6 +61,11 @@ public:
 
 		mData[mCount] = value;
 		++mCount;
+	}
+
+	void setCount(int count){
+		resize(count);
+		mCount = count;
 	}
 
 	void resize(int size){
@@ -126,7 +131,7 @@ public:
 		clear();
 	}
 
-	operator T*() const {
+	T* GetData() const {
 		return mData;
 	}
 

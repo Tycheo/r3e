@@ -15,13 +15,17 @@ public:
 	virtual ~Mesh1TexEntity(){}
 
 	virtual void Render(){
+		glPushMatrix();
+		mTransform.glMult();
+
 		mMaterial.Apply();
 		mMesh->Render();
+		glPopMatrix();
 	}
 
 	Mesh1TexEntity* SetMesh(const char* path){
 		mMesh = MeshManager::Instance().LoadMesh(path);
-		mBoundingBox = mMesh->mBoundingBox;
+		SetBoundingBox(mMesh->mBoundingBox);
 		return this;
 	}
 

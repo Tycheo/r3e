@@ -18,6 +18,7 @@ public:
 	virtual unsigned int BufferSize() = 0;
 
 	virtual void SetSize(int indices) = 0;
+	virtual void SetCount(int indices) = 0;
 
 	virtual void Draw() = 0;
 };
@@ -36,6 +37,10 @@ public:
 		mIndices.resize(indices);
 	}
 
+	void SetCount(int indices){
+		mIndices.setCount(indices);
+	}
+
 	void AddIndex(void* index){
 		mIndices.push_back(*((T*)index));
 	}
@@ -49,7 +54,7 @@ public:
 	}
 
 	char* Buffer(){
-		return (char*)((T*)mIndices);
+		return (char*)mIndices.GetData();
 	}
 
 	void Draw(){

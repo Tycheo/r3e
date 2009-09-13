@@ -6,6 +6,8 @@
 #include "Vector4.hpp"
 #include "Quaternion.hpp"
 
+#include "OpenGL.hpp"
+
 class Matrix4 {
 public:
 	Matrix4(){
@@ -73,6 +75,14 @@ public:
 
 		return vec;
 	};
+
+	void glLoad(){
+		glLoadMatrixf(&m[0][0]);
+	}
+
+	void glMult(){
+		glMultMatrixf(&m[0][0]);
+	}
 
 	static Matrix4 CreateInverse(const Matrix4& in){
 		Matrix4 mat;

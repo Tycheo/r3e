@@ -18,6 +18,7 @@ public:
 	virtual unsigned int BufferSize() = 0;
 
 	virtual void SetSize(int vertices) = 0;
+	virtual void SetCount(int vertices) = 0;
 
 	virtual void Bind() = 0;
 };
@@ -34,6 +35,10 @@ public:
 		mVertices.resize(vertices);
 	}
 
+	void SetCount(int vertices){
+		mVertices.setCount(vertices);
+	}
+
 	void AddVertex(void* vertex){
 		mVertices.push_back(*((T*)vertex));
 	}
@@ -47,7 +52,7 @@ public:
 	}
 
 	char* Buffer(){
-		return (char*)((T*)mVertices);
+		return (char*)mVertices.GetData();
 	}
 
 	void Bind(){

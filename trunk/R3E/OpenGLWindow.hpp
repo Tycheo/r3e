@@ -158,6 +158,10 @@ public:
 
 	OpenGLWindow& SetTitle(const char* title){
 		mTitle = title;
+		if(mHWND){
+			SetWindowText(mHWND, title);
+		}
+
 		return *this;
 	}
 

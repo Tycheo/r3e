@@ -5,19 +5,28 @@
 #include "Array.hpp"
 #include "Camera.hpp"
 #include "Entity.hpp"
+#include "ShaderPair.hpp"
+#include "SkinShaderData.hpp"
+#include "ROSEData.hpp"
 
 class SceneManager {
 public:
-	SceneManager() : mCamera(0), mCulling(true) {}
+	SceneManager() : mCamera(0), mCulling(true) {
+		mShaders.setCount(MAX_ENTITY);
+	}
+
 	~SceneManager(){
 		SAFE_DELETE(mCamera);
 		
 		mAllEntities.delete_values();
+		mShaders.delete_values();
 	}
 
-	void AddEntity(Entity* entity){
+	Entity* AddEntity(Entity* entity){
+		if(!entity) return NULL;
 		mEntityList[entity->mType].push_back(entity);
 		mAllEntities.push_back(entity);
+		return entity;
 	}
 
 	void SetCamera(Camera* camera){
@@ -26,6 +35,15 @@ public:
 
 	void SetCulling(bool enabled){
 		mCulling = enabled;
+	}
+
+	void Init(){
+		ShaderPair* skinShader1 = new ShaderPair("1tex_skin_mesh.vsh", "1tex_skin_mesh.psh");
+		SkinShaderData::LoadFromShader(skinShader1->GetProgramObject());
+
+		mShaders[ENTITY_1TEX_MESH_SKINNED] = skinShader1;
+
+		ROSE::Data::LoadZSC();
 	}
 
 	void BeginScene(){
@@ -61,25 +79,48 @@ public:
 
 			Array<Entity*, 10>& lst = mEntityList[ENTITY_COLOUR];
 
-			for(unsigned int i = 0; i < lst.size(); ++i)
+			for(unsigned int i = 0; i < lst.size(); ++i){
+				if(!lst[i]->mVisible) continue;
 				lst[i]->Render();
+			}
 		}
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+		glEnable(GL_TEXTURE_2D);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 		if(mEntityList[ENTITY_1TEX_MESH].size()){
-			glEnable(GL_TEXTURE_2D);
-
 			Array<Entity*, 10>& lst = mEntityList[ENTITY_1TEX_MESH];
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-			for(unsigned int i = 0; i < lst.size(); ++i)
+			for(unsigned int i = 0; i < lst.size(); ++i){
+				if(!lst[i]->mVisible) continue;
 				lst[i]->Render();
-
-			glDisableClientState(GL_VERTEX_ARRAY);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
 		}
+
+		if(mEntityList[ENTITY_1TEX_MESH_SKINNED].size()){
+			Array<Entity*, 10>& lst = mEntityList[ENTITY_1TEX_MESH_SKINNED];
+
+			mShaders[ENTITY_1TEX_MESH_SKINNED]->Apply();
+
+			OpenGL::EnableVertexAttribArray(SkinShaderData::mBoneLoc);
+			OpenGL::EnableVertexAttribArray(SkinShaderData::mWeightLoc);
+
+			for(unsigned int i = 0; i < lst.size(); ++i){
+				if(!lst[i]->mVisible) continue;
+				lst[i]->Render();
+			}
+
+			OpenGL::DisableVertexAttribArray(SkinShaderData::mBoneLoc);
+			OpenGL::DisableVertexAttribArray(SkinShaderData::mWeightLoc);
+
+			ShaderPair::Remove();
+		}
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
 	void EndScene(){
@@ -92,6 +133,8 @@ private:
 	Array<Entity*, 10> mAllEntities;
 
 	int mWidth, mHeight;
+
+	Array<ShaderPair*> mShaders;
 };
 
 #endif

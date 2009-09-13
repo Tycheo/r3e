@@ -25,16 +25,19 @@ public:
 		mZWrite = 1;
 		mIsAlpha = 0;
 		mBlendType = 0;
+		mSpecular = 0;
 	}
 
 	void Apply(){
 		if(mIs2Side) glDisable(GL_CULL_FACE);
 		else glEnable(GL_CULL_FACE);
 
-		if(mAlphaTest) glEnable(GL_ALPHA_TEST);
-		else glDisable(GL_ALPHA_TEST);
-
-		glAlphaFunc(GL_GEQUAL, mAlphaRef);
+		if(mAlphaTest && !mSpecular){
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GEQUAL, mAlphaRef);
+		}else{
+			glDisable(GL_ALPHA_TEST);
+		}
 
 		if(mZTest) glEnable(GL_DEPTH_TEST);
 		else glDisable(GL_DEPTH_TEST);
@@ -42,7 +45,7 @@ public:
 		if(mZWrite) glDepthMask(GL_TRUE);
 		else glDepthMask(GL_FALSE);
 
-		if(mIsAlpha){
+		if(mIsAlpha && !mSpecular){
 			glEnable(GL_BLEND);
 
 			if(mBlendType == 0){
@@ -69,6 +72,7 @@ public:
 	short mZTest;
 	short mZWrite;
 	short mBlendType;
+	short mSpecular;
 
 private:
 	SmartTexture mTexture;

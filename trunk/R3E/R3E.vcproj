@@ -41,6 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="D:\Programming\Projects\R3E\Libraries\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;IL_STATIC_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,6 +64,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="ILd.lib ILUd.lib ILUTd.lib libpngd.lib zlibd.lib libjpeg.lib opengl32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)d.lib"
+				AdditionalLibraryDirectories="D:\Programming\Projects\R3E\Libraries\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -108,6 +110,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="D:\Programming\Projects\R3E\Libraries\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -129,7 +132,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="IL.lib ILU.lib ILUT.lib opengl32.lib"
+				AdditionalDependencies="IL.lib ILU.lib ILUT.lib zlib.lib libpng.lib libjpeg.lib opengl32.lib"
+				AdditionalLibraryDirectories="D:\Programming\Projects\R3E\Libraries\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -155,7 +159,31 @@
 			Name="ROSE"
 			>
 			<File
+				RelativePath=".\PTL.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ROSEData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ROSEData.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ZMD.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ZMO.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ZMS.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ZSC.hpp"
 				>
 			</File>
 		</Filter>
@@ -202,6 +230,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Random.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Range.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\TargetCamera.hpp"
 					>
 				</File>
@@ -238,7 +274,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\PixelShader.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ShaderPair.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\VertexBuffer.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\VertexShader.hpp"
 					>
 				</File>
 				<File
@@ -282,6 +330,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ReadWholeFile.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\SafeDelete.hpp"
 					>
 				</File>
@@ -322,11 +374,27 @@
 				Name="Data Managers"
 				>
 				<File
+					RelativePath=".\AnimationManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AnimationManager.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\MeshManager.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\MeshManager.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SkeletonManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SkeletonManager.hpp"
 					>
 				</File>
 				<File
@@ -346,11 +414,35 @@
 					>
 				</File>
 				<File
+					RelativePath=".\EntityGroup.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Mesh1TexEntity.hpp"
 					>
 				</File>
 				<File
+					RelativePath=".\Player.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\SceneManager.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SkeletalEntity.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Data"
+				>
+				<File
+					RelativePath=".\SkinShaderData.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SkinShaderData.hpp"
 					>
 				</File>
 			</Filter>
