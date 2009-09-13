@@ -2,8 +2,7 @@
 #define ROSE_DATA_HPP
 
 #include "ZSC.hpp"
-#include "Array.hpp"
-#include "Mesh1TexEntity.hpp"
+#include "NpcManager.hpp"
 
 namespace ROSE {
 	enum ItemType {
@@ -34,7 +33,7 @@ namespace ROSE {
 
 	class Data {
 	public:
-		static void LoadZSC(){
+		static void Load(){
 			static bool loaded = false;
 			if(loaded) return;
 			loaded = true;
@@ -62,6 +61,21 @@ namespace ROSE {
 			mModelLists[G_FEMALE][IT_FOOT] = new ZSC<Mesh1TexEntity>("3DDATA\\AVATAR\\LIST_WFOOT.ZSC");
 			mModelLists[G_FEMALE][IT_FACE] = new ZSC<Mesh1TexEntity>("3DDATA\\AVATAR\\LIST_WFACE.ZSC");
 			mModelLists[G_FEMALE][IT_HAIR] = new ZSC<Mesh1TexEntity>("3DDATA\\AVATAR\\LIST_WHAIR.ZSC");
+
+			mModelLists[G_MALE][IT_BACK]->SetBindDummy(3);
+
+			mModelLists[G_MALE][IT_MASK]->SetBindDummy(4);
+
+			mModelLists[G_MALE][IT_CAP]->SetBindDummy(6);
+			mModelLists[G_FEMALE][IT_CAP]->SetBindDummy(6);
+
+			mModelLists[G_MALE][IT_FACE]->SetBindBone(4);
+			mModelLists[G_MALE][IT_HAIR]->SetBindBone(4);
+
+			mModelLists[G_FEMALE][IT_FACE]->SetBindBone(4);
+			mModelLists[G_FEMALE][IT_HAIR]->SetBindBone(4);
+
+			NpcManager::Instance().Init();
 		}
 
 	public:

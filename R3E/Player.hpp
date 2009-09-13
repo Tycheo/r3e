@@ -1,9 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "EntityGroup.hpp"
 #include "SkeletalEntity.hpp"
-#include "SafeDelete.hpp"
 #include "ROSEData.hpp"
 
 class Player : public SkeletalEntity {
@@ -16,11 +14,21 @@ public:
 
 	virtual ~Player(){}
 
+	void SetGender(int gender){
+		if(gender == ROSE::G_FEMALE){
+			SetSkeleton("3DDATA\\AVATAR\\FEMALE.ZMD");
+			mGender = ROSE::G_FEMALE;
+		}else if(gender == ROSE::G_MALE){
+			SetSkeleton("3DDATA\\AVATAR\\MALE.ZMD");
+			mGender = ROSE::G_MALE;
+		}
+	}
+
 	bool SetItem(int type, int id){
 		if(type >= ROSE::IT_MAX) return false;
 		if(type <= 0) return false;
 
-		Entity* entity = ROSE::Data::mModelLists[mGender][type]->LoadModel(id);
+		Entity* entity = ROSE::Data::mModelLists[mGender][type]->LoadModel(id, this);
 		if(!entity) return false;
 
 		if(mItemEntities[type]){
@@ -30,15 +38,6 @@ public:
 
 		AddChild(entity);
 		mItemEntities[type] = entity;
-
-		if(type == ROSE::IT_FACE || type == ROSE::IT_HAIR)
-			BindEntityToBone(entity, "b1_head");
-		else if(type == ROSE::IT_WEAPON)
-			BindEntityToBone(entity, "p_00");
-		else if(type == ROSE::IT_SUBWPN)
-			BindEntityToBone(entity, "p_02");
-		else if(type == ROSE::IT_BACK)
-			BindEntityToBone(entity, "p_03");
 
 		return true;
 	}

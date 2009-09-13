@@ -366,11 +366,11 @@ namespace ROSE {
 		}
 
 	public:
+		VertexFormat mFormat;
 		BoundingBox mBoundingBox;
 
 	private:
 		int mVersion;
-		VertexFormat mFormat;
 
 		short mBoneCount;
 		short* mBoneLookup;

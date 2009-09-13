@@ -67,7 +67,7 @@ public:
 		return mMesh->GetMesh();
 	}
 
-	operator ROSE::ZMS*() const {
+	ROSE::ZMS* Get() const {
 		return mMesh->GetMesh();
 	}
 

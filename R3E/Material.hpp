@@ -76,17 +76,6 @@ public:
 
 private:
 	SmartTexture mTexture;
-
-	/*Unused ROSE Properties
-	short mSpecular;
-	float mAlpha;
-	short mGlowType;
-
-	struct {
-		float Red;
-		float Green;
-		float Blue;
-	} mGlow;*/
 };
 
 #endif

@@ -29,6 +29,10 @@ public:
 
 	virtual void Render(){}
 
+	virtual bool IsSkinned(){
+		return false;
+	}
+
 	virtual void UpdateBoundingBox(){
 		mBoundingBoxTransformed.Reset();
 		mBoundingBoxTransformed.AddTransformedBox(mBoundingBox, mTransform);

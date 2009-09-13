@@ -8,6 +8,12 @@
 #include <time.h>
 
 class SkeletalEntity : public EntityGroup {
+private:
+	struct BoundEntity {
+		Entity* mEntity;
+		int mBoneID;
+	};
+
 public:
 	SkeletalEntity()
 		: mBoneMatrices(0), mBoneMatricesAbs(0), mCurFrame(0), mUpdateInterval(0)
@@ -84,17 +90,38 @@ public:
 	}
 
 	void BindEntityToBone(Entity* entity, const char* bone){
-		unsigned int idx = mChildren.find(entity);
-		if(idx == Array<Entity*>::NOT_FOUND) return;
 		unsigned int boneID = mSkeleton.Get()->GetBoneID(bone);
-		mBindList[idx] = boneID;
+		if(boneID == 0xFFFFFFFF) return;
+		BindEntityToBone(entity, boneID);
+	}
+
+	void BindEntityToDummy(Entity* entity, int boneID){
+		ROSE::ZMD* skeleton = mSkeleton.Get();
+		if(!skeleton) return;
+		const Array<ROSE::ZMD::Bone>& bindBoneList = skeleton->GetBoneList();
+		for(unsigned int i = 0; i < bindBoneList.size(); ++i){
+			ROSE::ZMD::Bone* bone = &bindBoneList[i];
+			if(!bone->mDummy) continue;
+			boneID += i;
+			break;
+		}
+
+		BindEntityToBone(entity, boneID);
 	}
 
 	void BindEntityToBone(Entity* entity, int bone){
 		unsigned int idx = mChildren.find(entity);
-		if(idx == Array<Entity*>::NOT_FOUND) return;
-		mBindList[idx] = bone;
+		if(idx != Array<Entity*>::NOT_FOUND){
+			mBindList[idx] = bone;
+			return;
+		}
+
+		BoundEntity bound;
+		bound.mEntity = entity;
+		bound.mBoneID = bone;
+		mBoundEntities.push_back(bound);
 	}
+
 
 private:
 	void Update(){
@@ -106,6 +133,11 @@ private:
 		for(unsigned int i = 0; i < mBindList.size(); ++i){
 			if(mBindList[i] == -1) continue;
 			mChildren[i]->SetTransform(mBoneMatricesAbs[mCurFrame][mBindList[i]]);
+		}
+
+		for(unsigned int i = 0; i < mBoundEntities.size(); ++i){
+			BoundEntity& bound = mBoundEntities[i];
+			bound.mEntity->SetTransform(mBoneMatricesAbs[mCurFrame][bound.mBoneID]);
 		}
 	}
 	
@@ -152,6 +184,8 @@ private:
 	Array<Matrix4>* mBoneMatricesAbs;
 	
 	Array<int> mBindList;
+
+	Array<BoundEntity> mBoundEntities;
 };
 
 #endif
