@@ -28,6 +28,7 @@ public:
 	}
 
 	virtual void Render(){}
+	virtual void Update(){}
 
 	virtual bool IsSkinned(){
 		return false;

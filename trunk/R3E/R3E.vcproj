@@ -115,7 +115,7 @@
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
@@ -160,6 +160,14 @@
 			>
 			<File
 				RelativePath=".\CHR.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NpcManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NpcManager.hpp"
 				>
 			</File>
 			<File
@@ -345,10 +353,26 @@
 					RelativePath=".\ScopedPointer.hpp"
 					>
 				</File>
+				<File
+					RelativePath=".\SmartObject.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SmartPointer.hpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="File"
 				>
+				<File
+					RelativePath=".\BufferedFile.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\BufferedFileSystem.hpp"
+					>
+				</File>
 				<File
 					RelativePath=".\File.hpp"
 					>
@@ -361,60 +385,32 @@
 					RelativePath=".\FileSystem.hpp"
 					>
 				</File>
-				<Filter
-					Name="Flat File"
+				<File
+					RelativePath=".\FlatFile.hpp"
 					>
-					<File
-						RelativePath=".\FlatFile.hpp"
-						>
-					</File>
-					<File
-						RelativePath=".\FlatFileSystem.hpp"
-						>
-					</File>
-				</Filter>
+				</File>
+				<File
+					RelativePath=".\FlatFileSystem.hpp"
+					>
+				</File>
 			</Filter>
 			<Filter
-				Name="Data Managers"
+				Name="Resources"
 				>
 				<File
-					RelativePath=".\AnimationManager.cpp"
+					RelativePath=".\Resource.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\AnimationManager.hpp"
+					RelativePath=".\ResourceManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MeshManager.cpp"
+					RelativePath=".\ResourceManager.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MeshManager.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\NpcManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\NpcManager.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SkeletonManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SkeletonManager.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TextureManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TextureManager.hpp"
+					RelativePath=".\Texture.hpp"
 					>
 				</File>
 			</Filter>

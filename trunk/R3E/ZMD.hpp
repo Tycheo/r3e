@@ -9,10 +9,10 @@
 #include "Matrix4.hpp"
 #include "Array.hpp"
 
-//#include "ZMO.hpp"
+#include "Resource.hpp"
 
 namespace ROSE {
-	class ZMD {
+	class ZMD : public Resource {
 	public:
 		struct Bone {
 			bool mDummy;
@@ -27,18 +27,13 @@ namespace ROSE {
 
 	public:
 		ZMD(){}
-		ZMD(const char* path){
-			Open(path);
-		}
+		virtual ~ZMD(){}
 
-		~ZMD(){
+		virtual void Unload(){
 			mBoneList.clear();
 		}
 
-		bool Open(const char* path){
-			//ZMO test;
-			//test.Open("3DDATA\\MOTION\\AVATAR\\EMPTY_STOP1_M1.ZMO");
-
+		virtual bool Load(const char* path){
 			ScopedPointer<File> fh(FILE_SYS()->OpenFile(path, "rb"));
 			if(!fh) return false;
 

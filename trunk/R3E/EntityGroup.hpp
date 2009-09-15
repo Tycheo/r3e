@@ -43,11 +43,15 @@ public:
 
 		for(unsigned int i = 0; i < mChildren.size(); ++i){
 			if(!mChildren[i]->IsSkinned()){
-				OpenGL::Uniform1i(bindBoneLoc, 1);
 				mChildren[i]->Render();
-				OpenGL::Uniform1i(bindBoneLoc, 0);
 			}else{
+				OpenGL::Uniform1i(bindBoneLoc, 0);
+				OpenGL::EnableVertexAttribArray(SkinShaderData::mBoneLoc);
+				OpenGL::EnableVertexAttribArray(SkinShaderData::mWeightLoc);
 				mChildren[i]->Render();
+				OpenGL::DisableVertexAttribArray(SkinShaderData::mBoneLoc);
+				OpenGL::DisableVertexAttribArray(SkinShaderData::mWeightLoc);
+				OpenGL::Uniform1i(bindBoneLoc, 1);
 			}
 		}
 
@@ -71,14 +75,14 @@ public:
 
 	virtual void UpdateBoundingBox(){
 		mBoundingBox.Reset();
+		mBoundingBoxTransformed.Reset();
 
 		for(unsigned int i = 0; i < mChildren.size(); ++i){
 			mChildren[i]->UpdateBoundingBox();
 			mBoundingBox.AddBox(mChildren[i]->mBoundingBoxTransformed);
 		}
 
-		mBoundingBoxTransformed.mMin = mTransform.TransformCoord(mBoundingBox.mMin);
-		mBoundingBoxTransformed.mMax = mTransform.TransformCoord(mBoundingBox.mMax);
+		mBoundingBoxTransformed.AddTransformedBox(mBoundingBox, mTransform);
 	}
 
 public:

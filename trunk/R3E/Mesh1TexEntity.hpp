@@ -1,10 +1,10 @@
 #ifndef MESH_1TEX_ENTITY
 #define MESH_1TEX_ENTITY
 
+#include "ZMS.hpp"
 #include "Entity.hpp"
-
-#include "MeshManager.hpp"
 #include "Material.hpp"
+#include "ResourceManager.hpp"
 
 class Mesh1TexEntity : public Entity {
 public:
@@ -24,11 +24,11 @@ public:
 	}
 
 	virtual bool IsSkinned(){
-		return mMesh.Get()->mFormat.HasSkin();
+		return mMesh->mFormat.HasSkin();
 	}
 
 	Mesh1TexEntity* SetMesh(const char* path){
-		mMesh = MeshManager::Instance().LoadMesh(path);
+		mMesh = ResourceManager<ROSE::ZMS>::Instance().Load(path);
 		SetBoundingBox(mMesh->mBoundingBox);
 		return this;
 	}
@@ -39,7 +39,7 @@ public:
 	}
 
 private:
-	SmartMesh mMesh;
+	SmartPointer<ROSE::ZMS> mMesh;
 	Material mMaterial;
 };
 

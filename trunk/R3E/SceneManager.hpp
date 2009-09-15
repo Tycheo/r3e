@@ -46,6 +46,9 @@ public:
 
 	void BeginScene(){
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		for(unsigned int i = 0; i < mAllEntities.size(); ++i)
+			mAllEntities[i]->Update();
+
 		if(!mCamera) return;
 		if(!mCamera->Apply()) return;
 		if(!mCulling) return;
@@ -103,16 +106,12 @@ public:
 
 			mShaders[ENTITY_1TEX_MESH_SKINNED]->Apply();
 
-			OpenGL::EnableVertexAttribArray(SkinShaderData::mBoneLoc);
-			OpenGL::EnableVertexAttribArray(SkinShaderData::mWeightLoc);
+			OpenGL::Uniform1i(SkinShaderData::mBindBoneLoc, 1);
 
 			for(unsigned int i = 0; i < lst.size(); ++i){
 				if(!lst[i]->mVisible) continue;
 				lst[i]->Render();
 			}
-
-			OpenGL::DisableVertexAttribArray(SkinShaderData::mBoneLoc);
-			OpenGL::DisableVertexAttribArray(SkinShaderData::mWeightLoc);
 
 			ShaderPair::Remove();
 		}

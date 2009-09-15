@@ -1,7 +1,7 @@
 #include "..\R3E\OpenGLWindow.hpp"
 #include "..\R3E\TargetCamera.hpp"
 #include "..\R3E\OpenGL.hpp"
-#include "..\R3E\FlatFileSystem.hpp"
+#include "..\R3E\BufferedFileSystem.hpp"
 #include "..\R3E\SceneManager.hpp"
 #include "..\R3E\ROSEData.hpp"
 #include "..\R3E\Player.hpp"
@@ -46,7 +46,6 @@ class ROSEWindow : public OpenGLWindow {
 public:
 	TargetCamera* mCamera;
 	SceneManager mScene;
-	Player* mPlayer;
 
 	ROSEWindow(){
 		mTotalFrames = 0;
@@ -54,7 +53,7 @@ public:
 		mCamera = new TargetCamera();
 		mScene.SetCamera(mCamera);
 
-		mScene.AddEntity(new AxisLinesEntity());
+		//mScene.AddEntity(new AxisLinesEntity());
 	}
 
 	virtual ~ROSEWindow(){}
@@ -87,26 +86,52 @@ public:
 		mScene.Init();
 		ROSE::Data::Load();
 
-		mPlayer = new Player();
 
-		mPlayer->SetGender(1);
-		mPlayer->SetAnimation("3DDATA\\MOTION\\AVATAR\\ONETOOL_ATTACK01_M1.ZMO");
+		float cRadius = 2.0f;
+		float cRadiusIncr = 2.0f;
+		unsigned int maxNpc = 20;
+		float angIncr = M_PI / float(maxNpc / 2);
+		float cAng = 0.0f;
+		unsigned int cCount = 1;
+		
+		for(unsigned int j = 0; j < cCount; ++j){
+			for(unsigned int i = 0; i < maxNpc; ++i){
+				Player* mPlayer = new Player();
 
-		mPlayer->SetItem(ROSE::IT_BODY, 42);
-		mPlayer->SetItem(ROSE::IT_FOOT, 42);
-		mPlayer->SetItem(ROSE::IT_ARM, 42);
-		mPlayer->SetItem(ROSE::IT_CAP, 866);
-		mPlayer->SetItem(ROSE::IT_HAIR, 0);
+				mPlayer->SetGender(0);
+				mPlayer->SetAnimation("3DDATA\\MOTION\\AVATAR\\DANCE_01_M1.ZMO");
+
+				mPlayer->SetItem(ROSE::IT_BODY, 156);
+				mPlayer->SetItem(ROSE::IT_FOOT, 1);
+				mPlayer->SetItem(ROSE::IT_ARM, 1);
+				mPlayer->SetItem(ROSE::IT_CAP, 870);
+				mPlayer->SetItem(ROSE::IT_FACE, 2);
+				mPlayer->SetItem(ROSE::IT_MASK, 161);
+				mPlayer->Transform(Matrix4::CreateScaling(Vector3(0.5f, 0.5f, 0.5f)));
+				mPlayer->Transform(Matrix4::CreateRotationZ(-M_PI_2));
+				mPlayer->Transform(Matrix4::CreateTranslation(Vector3(cRadius, 0.0f, 0.0f)));
+				mPlayer->Transform(Matrix4::CreateRotationZ(cAng));
+
+				mScene.AddEntity(mPlayer);
+				cAng += angIncr;
+			}
+			cRadius += cRadiusIncr;
+		}
+		
+		Player* mPlayer = new Player();
+
+		mPlayer->SetGender(0);
+		mPlayer->SetAnimation("3DDATA\\MOTION\\AVATAR\\DANCE_01_M1.ZMO");
+
+		mPlayer->SetItem(ROSE::IT_BODY, 156);
+		mPlayer->SetItem(ROSE::IT_FOOT, 1);
+		mPlayer->SetItem(ROSE::IT_ARM, 1);
+		mPlayer->SetItem(ROSE::IT_CAP, 870);
 		mPlayer->SetItem(ROSE::IT_FACE, 2);
-		mPlayer->SetItem(ROSE::IT_WEAPON, 49);
-		mPlayer->SetItem(ROSE::IT_SUBWPN, 17);
-		mPlayer->SetItem(ROSE::IT_BACK, 778);
+		mPlayer->SetItem(ROSE::IT_MASK, 161);
+		mPlayer->Transform(Matrix4::CreateScaling(Vector3(2.0f, 2.0f, 2.0f)));
 
 		mScene.AddEntity(mPlayer);
-
-		Entity* npc = NpcManager::Instance().Load(1);
-		npc->SetTransform(Matrix4::CreateTranslation(Vector3(1.0f, 0.0f, 0.0f)));
-		mScene.AddEntity(npc);
 
 		return TRUE;
 	}
@@ -115,6 +140,7 @@ public:
 		static clock_t start = clock();
 		++mTotalFrames;
 
+		OpenGL::mVertexCount = 0;
 		mScene.BeginScene();
 		mScene.RenderScene();
 		mScene.EndScene();
@@ -123,7 +149,7 @@ public:
 		if(secsSinceStart == 0) return;
 		int FPS = mTotalFrames / secsSinceStart;
 		char buffer[32];
-		sprintf_s(buffer, 32, "FPS: %i", FPS);
+		sprintf_s(buffer, 32, "FPS: %i, Vertices: %u", FPS, OpenGL::mVertexCount);
 		SetTitle(buffer);
 	}
 
@@ -148,14 +174,14 @@ public:
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
 	if(strlen(lpCmdLine) > 0){
-		FileSystem::SetFileSystem((FileSystem*)(new FlatFileSystem(lpCmdLine)));
+		FileSystem::SetFileSystem((FileSystem*)(new BufferedFileSystem(lpCmdLine)));
 	}else{
-		FileSystem::SetFileSystem((FileSystem*)(new FlatFileSystem("D:\\Games\\RuffVFS Clean\\")));
+		FileSystem::SetFileSystem((FileSystem*)(new BufferedFileSystem("D:\\Games\\RuffVFS Clean\\")));
 	}
 
 	ROSEWindow wnd;
 	wnd.SetTitle("ROSE 3D Engine");
-	wnd.SetSize(640, 480);
+	wnd.SetSize(1024, 768);
 
 	if(!wnd.Create()) return 0;
 

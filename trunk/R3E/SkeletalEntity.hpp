@@ -2,9 +2,10 @@
 #define SKELETAL_ENTITY_H
 
 #include "EntityGroup.hpp"
-#include "SkeletonManager.hpp"
-#include "AnimationManager.hpp"
 #include "SkinShaderData.hpp"
+#include "ZMD.hpp"
+#include "ZMO.hpp"
+#include "ResourceManager.hpp"
 #include <time.h>
 
 class SkeletalEntity : public EntityGroup {
@@ -42,8 +43,6 @@ public:
 	}
 
 	virtual void Render(){
-		Update();
-
 		GLint bmatLoc = SkinShaderData::mBMatLoc;
 		GLint bindBoneLoc = SkinShaderData::mBindBoneLoc;
 
@@ -69,19 +68,43 @@ public:
 		glPopMatrix();
 	}
 
+	virtual void Update(){
+		if(clock() - mLastUpdate > mUpdateInterval){
+			SetFrame(mCurFrame + 1);
+			mLastUpdate = clock();
+		}
+
+		for(unsigned int i = 0; i < mBindList.size(); ++i){
+			if(mBindList[i] == -1) continue;
+			mChildren[i]->SetTransform(mBoneMatricesAbs[mCurFrame][mBindList[i]]);
+		}
+
+		for(unsigned int i = 0; i < mBoundEntities.size(); ++i){
+			BoundEntity& bound = mBoundEntities[i];
+			bound.mEntity->SetTransform(mBoneMatricesAbs[mCurFrame][bound.mBoneID]);
+		}
+
+		BoundingBox tmp = mBoundingBox;
+		tmp.mMin -= Vector3(0.5f);
+		tmp.mMax += Vector3(0.5f);
+
+		mBoundingBoxTransformed.Reset();
+		mBoundingBoxTransformed.AddTransformedBox(tmp, mBoneMatrices[mCurFrame][0] * mTransform);
+	}
+
 	void SetSkeleton(const char* path){
-		mSkeleton = SkeletonManager::Instance().LoadSkeleton(path);
+		mSkeleton = ResourceManager<ROSE::ZMD>::Instance().Load(path);
 	}
 
 	void SetAnimation(const char* path){
-		mAnimation = AnimationManager::Instance().LoadAnimation(path);
+		mAnimation = ResourceManager<ROSE::ZMO>::Instance().Load(path);
 		PreloadFrames();
 	}
 
 	void SetFrame(int frame){
 		if(frame < 0) frame = 0;
 		mCurFrame = frame;
-		if(mCurFrame >= mAnimation.Get()->GetFrameCount()) mCurFrame = 0;
+		if(mCurFrame >= mAnimation->GetFrameCount()) mCurFrame = 0;
 	}
 
 	unsigned int GetBoneCount(){
@@ -90,7 +113,7 @@ public:
 	}
 
 	void BindEntityToBone(Entity* entity, const char* bone){
-		unsigned int boneID = mSkeleton.Get()->GetBoneID(bone);
+		unsigned int boneID = mSkeleton->GetBoneID(bone);
 		if(boneID == 0xFFFFFFFF) return;
 		BindEntityToBone(entity, boneID);
 	}
@@ -120,25 +143,6 @@ public:
 		bound.mEntity = entity;
 		bound.mBoneID = bone;
 		mBoundEntities.push_back(bound);
-	}
-
-
-private:
-	void Update(){
-		if(clock() - mLastUpdate > mUpdateInterval){
-			SetFrame(mCurFrame + 1);
-			mLastUpdate = clock();
-		}
-
-		for(unsigned int i = 0; i < mBindList.size(); ++i){
-			if(mBindList[i] == -1) continue;
-			mChildren[i]->SetTransform(mBoneMatricesAbs[mCurFrame][mBindList[i]]);
-		}
-
-		for(unsigned int i = 0; i < mBoundEntities.size(); ++i){
-			BoundEntity& bound = mBoundEntities[i];
-			bound.mEntity->SetTransform(mBoneMatricesAbs[mCurFrame][bound.mBoneID]);
-		}
 	}
 	
 private:
@@ -177,8 +181,8 @@ private:
 	clock_t mLastUpdate;
 	clock_t mUpdateInterval;
 
-	SmartSkeleton mSkeleton;
-	SmartAnimation mAnimation;
+	SmartPointer<ROSE::ZMD> mSkeleton;
+	SmartPointer<ROSE::ZMO> mAnimation;
 
 	Array<Matrix4>* mBoneMatrices;
 	Array<Matrix4>* mBoneMatricesAbs;
