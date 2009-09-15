@@ -2,7 +2,6 @@
 #define VERTEX_BUFFER_H
 
 #include "Array.hpp"
-
 #include "OpenGL.hpp"
 
 class IVertexBuffer {
@@ -59,6 +58,7 @@ public:
 		if(mBufferID == GL_INVALID_INDEX) LoadBuffer();
 		OpenGL::BindBuffer(GL_ARRAY_BUFFER, mBufferID);
 		T::Bind();
+		OpenGL::mVertexCount += mVertices.size();
 	}
 
 private:

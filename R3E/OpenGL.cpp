@@ -1,6 +1,7 @@
 #include "OpenGL.hpp"
 
 OpenGL OpenGL::mInstance;
+unsigned int OpenGL::mVertexCount;
 
 PFNGLCLIENTACTIVETEXTUREPROC OpenGL::glClientActiveTexture;
 PFNGLACTIVETEXTUREPROC OpenGL::glActiveTexture;

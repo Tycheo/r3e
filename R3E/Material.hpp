@@ -2,7 +2,9 @@
 #define MATERIAL_H
 
 #include "OpenGL.hpp"
-#include "TextureManager.hpp"
+#include "Texture.hpp"
+#include "SmartPointer.hpp"
+#include "ResourceManager.hpp"
 
 class Material {
 public:
@@ -57,11 +59,11 @@ public:
 			glDisable(GL_BLEND);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, (GLuint)mTexture);
+		glBindTexture(GL_TEXTURE_2D, mTexture->GetTextureID());
 	}
 
 	void SetTexture(const char* path){
-		mTexture = TextureManager::Instance().LoadTexture(path);
+		mTexture = ResourceManager<Texture>::Instance().Load(path);
 	}
 
 public:
@@ -75,7 +77,7 @@ public:
 	short mSpecular;
 
 private:
-	SmartTexture mTexture;
+	SmartPointer<Texture> mTexture;
 };
 
 #endif

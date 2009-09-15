@@ -15,10 +15,10 @@
 
 #include "IndexBuffer.hpp"
 
-//#include "Animator.hpp"
+#include "Resource.hpp"
 
 namespace ROSE {
-	class ZMS {
+	class ZMS : public Resource {
 	private:
 		struct BoneWeights {
 			float mWeights[4];
@@ -109,7 +109,16 @@ namespace ROSE {
 			mUVMaps[3] = 0;
 		}
 
-		~ZMS(){
+		virtual ~ZMS(){}
+
+		void Render(){
+			OpenGL::ActiveTexture(GL_TEXTURE0_ARB);
+			OpenGL::ClientActiveTexture(GL_TEXTURE0_ARB);
+			mVertexBuffer->Bind();
+			mIndexBuffer->Draw();
+		}
+
+		virtual void Unload(){
 			SAFE_DELETE_ARRAY(mBoneLookup);
 			SAFE_DELETE_ARRAY(mVertices);
 			SAFE_DELETE_ARRAY(mNormals);
@@ -125,14 +134,7 @@ namespace ROSE {
 			SAFE_DELETE(mIndexBuffer);
 		}
 
-		void Render(){
-			OpenGL::ActiveTexture(GL_TEXTURE0_ARB);
-			OpenGL::ClientActiveTexture(GL_TEXTURE0_ARB);
-			mVertexBuffer->Bind();
-			mIndexBuffer->Draw();
-		}
-
-		bool Open(const char* path){
+		virtual bool Load(const char* path){
 			ScopedPointer<File> fh(FILE_SYS()->OpenFile(path, "rb"));
 			if(!fh) return false;
 

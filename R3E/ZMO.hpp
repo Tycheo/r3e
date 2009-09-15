@@ -10,9 +10,10 @@
 #include "Array.hpp"
 #include "SafeDelete.hpp"
 #include "ZMD.hpp"
+#include "Resource.hpp"
 
 namespace ROSE {
-	class ZMO {
+	class ZMO : public Resource {
 	private:
 		enum ChannelTypes {
 			CTYPE_NONE = (1 << 0),
@@ -43,15 +44,13 @@ namespace ROSE {
 
 	public:
 		ZMO(){}
-		ZMO(const char* path){
-			Open(path);
-		}
+		virtual ~ZMO(){}
 
-		~ZMO(){
+		virtual void Unload(){
 			mChannels.clear();
 		}
 
-		bool Open(const char* path){
+		virtual bool Load(const char* path){
 			ScopedPointer<File> fh(FILE_SYS()->OpenFile(path, "rb"));
 			if(!fh) return false;
 

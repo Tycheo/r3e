@@ -12,10 +12,7 @@ private:
 
 public:
 	NpcManager() : mZSC(0), mCHR(0) {}
-	~NpcManager(){
-		SAFE_DELETE(mZSC);
-		SAFE_DELETE(mCHR);
-	}
+	~NpcManager(){}
 
 	static NpcManager& Instance(){
 		return mInstance;

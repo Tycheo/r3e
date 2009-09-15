@@ -146,35 +146,6 @@ public:
 		glUseProgram(program);
 	}
 
-	static GLuint LoadTexture(const char* pathV, int* width = NULL, int* height = NULL){
-		String path = pathV;
-		FILE_SYS()->GetFullPath(path);
-
-		static bool hasInitIL = false;
-		if(!hasInitIL){
-			ilInit();
-			ilutRenderer(ILUT_OPENGL);
-			hasInitIL = true;
-		}
-
-		ILuint ilTex;
-		ilGenImages(1, &ilTex);
-		ilBindImage(ilTex);
-		if(!ilLoadImage(path)) return GL_INVALID_INDEX;
-		if(width) *width = ilGetInteger(IL_IMAGE_WIDTH);
-		if(height) *height = ilGetInteger(IL_IMAGE_HEIGHT);
-		iluFlipImage();
-		GLuint tmpTex = ilutGLBindTexImage();
-		ilDeleteImages(1, &ilTex);
-		return tmpTex;
-	}
-
-	static void UnloadTexture(GLuint& tex){
-		if(tex == GL_INVALID_INDEX) return;
-		glDeleteTextures(1, &tex);
-		tex = GL_INVALID_INDEX;
-	}
-
 	static void UnloadBuffer(GLuint& buf){
 		if(buf == GL_INVALID_INDEX) return;
 		glDeleteBuffers(1, &buf);
@@ -192,6 +163,9 @@ public:
 	static void Uniform1i(GLint location, GLint v0){
 		glUniform1i(location, v0);
 	}
+
+public:
+	static unsigned int mVertexCount;
 
 private:
 	static PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
